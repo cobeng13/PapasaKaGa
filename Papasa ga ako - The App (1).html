@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Final Grade Calculator</title>
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #000000;
+      --input-bg: #ffffff;
+      --input-text: #000000;
+      --border-color: #ccc;
+      --output-bg: #f0f0f0;
+    }
+    body.dark-mode {
+      --bg-color: #121212;
+      --text-color: #ffffff;
+      --input-bg: #1e1e1e;
+      --input-text: #ffffff;
+      --border-color: #444;
+      --output-bg: #1e1e1e;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+    .toggle-container {
+      margin-bottom: 20px;
+    }
+    .container {
+      display: flex;
+      gap: 40px;
+      align-items: flex-start;
+    }
+    .inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    label {
+      font-weight: bold;
+    }
+    input[type="number"] {
+      width: 80px;
+      padding: 5px;
+      margin-top: 5px;
+      background-color: var(--input-bg);
+      color: var(--input-text);
+      border: 1px solid var(--border-color);
+    }
+    .slider-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .slider-wrapper {
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+    }
+    input[type="range"] {
+      writing-mode: bt-lr;
+      -webkit-appearance: slider-vertical;
+      width: 40px;
+      height: 200px;
+    }
+    .output {
+      margin-bottom: 10px;
+      padding: 10px 20px;
+      border: 2px solid #333;
+      font-size: 24px;
+      font-weight: bold;
+      background-color: var(--output-bg);
+      color: var(--text-color);
+    }
+    .numerical-equivalent {
+      margin-bottom: 30px;
+      font-size: 20px;
+      background-color: var(--output-bg);
+      padding: 10px 20px;
+      border: 2px solid #999;
+    }
+    .bottom-sliders {
+      margin-top: 40px;
+      display: flex;
+      gap: 30px;
+    }
+  </style>
+</head>
+<body>
+  <h1>"Papasa ga ako?" The App</h1>
+  <div class="toggle-container">
+    <label><input type="checkbox" onchange="toggleMode(this)"> Toggle Dark Mode</label>
+  </div>
+  <div class="output" id="finalResult">Final Grade: --</div>
+  <div class="numerical-equivalent" id="numericalEquivalent">Numerical Equivalent: --</div>
+  <div class="container">
+    <div class="inputs">
+      <label for="midtermGrade">Midterm Grade:</label>
+      <input type="number" id="midtermGrade" min="60" max="100" value="75" oninput="calculateFinal()">
+    </div>
+    <div class="slider-box">
+      <label for="classPerformance">Class Performance</label>
+      <div class="slider-wrapper">
+        <input type="range" id="classPerformance" min="60" max="100" value="80" oninput="syncSliderInput('classPerformance')">
+        <input type="number" id="classPerformanceInput" min="60" max="100" value="80" oninput="syncInputSlider('classPerformance')">
+      </div>
+    </div>
+    <div class="slider-box">
+      <label for="finalExam">Final Exam</label>
+      <div class="slider-wrapper">
+        <input type="range" id="finalExam" min="60" max="100" value="80" oninput="syncSliderInput('finalExam')">
+        <input type="number" id="finalExamInput" min="60" max="100" value="80" oninput="syncInputSlider('finalExam')">
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-sliders">
+    <div class="slider-box">
+      <label for="quiz">Quiz Average</label>
+      <div class="slider-wrapper">
+        <input type="range" id="quiz" min="60" max="100" value="80" oninput="syncSliderInput('quiz')">
+        <input type="number" id="quizInput" min="60" max="100" value="80" oninput="syncInputSlider('quiz')">
+      </div>
+    </div>
+    <div class="slider-box">
+      <label for="activities">Activities Average</label>
+      <div class="slider-wrapper">
+        <input type="range" id="activities" min="60" max="100" value="80" oninput="syncSliderInput('activities')">
+        <input type="number" id="activitiesInput" min="60" max="100" value="80" oninput="syncInputSlider('activities')">
+      </div>
+    </div>
+    <div class="slider-box">
+      <label for="research">Research</label>
+      <div class="slider-wrapper">
+        <input type="range" id="research" min="60" max="100" value="80" oninput="syncSliderInput('research')">
+        <input type="number" id="researchInput" min="60" max="100" value="80" oninput="syncInputSlider('research')">
+      </div>
+    </div>
+    <div class="slider-box">
+      <label for="attendance">Attendance</label>
+      <div class="slider-wrapper">
+        <input type="range" id="attendance" min="60" max="100" value="80" oninput="syncSliderInput('attendance')">
+        <input type="number" id="attendanceInput" min="60" max="100" value="80" oninput="syncInputSlider('attendance')">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function calculateFinal() {
+      const midterm = parseFloat(document.getElementById("midtermGrade").value);
+      const finalExam = parseFloat(document.getElementById("finalExam").value);
+
+      const quiz = parseFloat(document.getElementById("quiz").value);
+      const activities = parseFloat(document.getElementById("activities").value);
+      const research = parseFloat(document.getElementById("research").value);
+      const attendance = parseFloat(document.getElementById("attendance").value);
+
+      const classPerf = (0.50 * quiz) + (0.30 * activities) + (0.10 * research) + (0.10 * attendance);
+      document.getElementById("classPerformance").value = classPerf.toFixed(2);
+      document.getElementById("classPerformanceInput").value = classPerf.toFixed(2);
+
+      const finalGrade = (0.40 * midterm) + (0.20 * classPerf) + (0.40 * finalExam);
+      const resultBox = document.getElementById("finalResult");
+      const equivalentBox = document.getElementById("numericalEquivalent");
+
+      const status = finalGrade >= 75 ? "PASSED" : "FAILED";
+      resultBox.textContent = `Final Grade: ${finalGrade.toFixed(2)} (${status})`;
+      resultBox.style.color = finalGrade >= 75 ? 'green' : 'red';
+
+      let equivalent = "--";
+      if (finalGrade >= 99) equivalent = "1.00";
+      else if (finalGrade >= 96) equivalent = "1.25";
+      else if (finalGrade >= 93) equivalent = "1.50";
+      else if (finalGrade >= 90) equivalent = "1.75";
+      else if (finalGrade >= 87) equivalent = "2.00";
+      else if (finalGrade >= 84) equivalent = "2.25";
+      else if (finalGrade >= 81) equivalent = "2.50";
+      else if (finalGrade >= 78) equivalent = "2.75";
+      else if (finalGrade >= 75) equivalent = "3.00";
+      else equivalent = "5.00";
+
+      equivalentBox.textContent = `Numerical Equivalent: ${equivalent}`;
+    }
+
+    function toggleMode(checkbox) {
+      document.body.classList.toggle('dark-mode', checkbox.checked);
+    }
+
+    function syncSliderInput(id) {
+      const slider = document.getElementById(id);
+      const input = document.getElementById(id + 'Input');
+      input.value = slider.value;
+      calculateFinal();
+    }
+
+    function syncInputSlider(id) {
+      const slider = document.getElementById(id);
+      const input = document.getElementById(id + 'Input');
+      slider.value = input.value;
+      calculateFinal();
+    }
+
+    calculateFinal();
+  </script>
+</body>
+</html>
